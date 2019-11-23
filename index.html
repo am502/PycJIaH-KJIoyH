@@ -19,7 +19,6 @@
         <div class="col" id="places"></div>
         <button type="button" class="btn btn-dark btn-block mt-2" onclick="add()">Добавить маршрут</button>
         <button type="button" class="btn btn-danger btn-block mt-2" onclick="generate()">Построить маршрут</button>
-        <button type="button" class="btn btn-success btn-block mt-2" onclick="rebuild()">Перестроить маршрут</button>
     </div>
     <div class="col-lg-10">
         <div id="map"></div>
@@ -31,8 +30,38 @@
     let routes = [];
 
     function generate() {
+        for (var i = 0; i < places.length; i++) {
+            for (var j = i + 1; j < places.length; j++) {
+                routes.push({
+                    "first": i,
+                    "second": j,
+                    "distance": returnYmaps().coordSystem.geo.getDistance(places[i].coordinates, places[j].coordinates)
+                })
+            }
+        }
+
+        var points = [];
+        points.push(places[0].coordinates);
+        var curPointIndex = 0;
+        while (points.length !== places.length) {
+            var min = Number.MAX_SAFE_INTEGER;
+            for (var i = 0; i < routes.length; i++) {
+                if (curPointIndex === routes[i].first && routes[i].distance < min) {
+                    curPointIndex = i;
+                    min = routes[i].distance;
+                }
+                if (curPointIndex === routes[i].second && routes[i].distance < min) {
+                    curPointIndex = i;
+                    min = routes[i].distance;
+                }
+            }
+            points.push(places[curPointIndex].coordinates);
+        }
+
+        console.log(points);
+
         var multiRoute = new ymaps.multiRouter.MultiRoute({
-            referencePoints: places.map(({coordinates}) => coordinates),
+            referencePoints: points,
             params: {
                 routingMode: 'pedestrian'
             }
@@ -42,20 +71,6 @@
             boundsAutoApply: true
         });
         returnMyMap().geoObjects.add(multiRoute);
-
-        multiRoute.model.events.add('requestsuccess', function() {
-            var activeRoute = multiRoute.getActiveRoute();
-            var activeRoutePaths = activeRoute.getPaths();
-            var index = 0;
-            activeRoutePaths.each(function(path) {
-                routes.push({
-                    "first": index,
-                    "second": index + 1,
-                    "distance": path.properties.get("distance").value
-                });
-                index++;
-            });
-        });
     }
 
     function add() {
@@ -71,10 +86,6 @@
         }
         document.getElementById("places").innerHTML = html;
         returnSearchControl().clear()
-    }
-
-    function rebuild() {
-        console.log(routes);
     }
 </script>
 
