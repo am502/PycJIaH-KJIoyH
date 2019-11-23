@@ -40,13 +40,15 @@
             }
         }
 
+        console.log(routes);
+
         var points = [];
         var visited = [];
         points.push(places[0].coordinates);
         visited.push(0);
         var curPointIndex = 0;
         while (points.length !== places.length) {
-            var min = Number.MAX_SAFE_INTEGER;
+            var min = 999999;
             for (var i = 0; i < routes.length; i++) {
                 if (curPointIndex === routes[i].first && routes[i].distance < min && !visited.includes(routes[i].second)) {
                     curPointIndex = routes[i].second;
@@ -57,6 +59,8 @@
                     min = routes[i].distance;
                 }
             }
+
+            visited.push(curPointIndex);
             points.push(places[curPointIndex].coordinates);
         }
 
