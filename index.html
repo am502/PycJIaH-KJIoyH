@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&amp;apikey=c24d46dd-dea7-406c-b2bc-67f613bb97be" type="text/javascript"></script>
+    <script src="search.js" type="text/javascript"></script>
+    <style>
+        html, body, #map {
+            width: 100%; height: 600px; padding: 0; margin: 0;
+        }
+    </style>
+</head>
+<body>
+<div class="row m-2">
+    <div class="col-lg-2">
+        <div class="col" id="list"></div>
+        <button type="button" class="btn btn-dark btn-block mt-2" onclick="add()">Добавить маршрут</button>
+        <button type="button" class="btn btn-danger btn-block mt-2" onclick="generate()">Построить маршрут</button>
+    </div>
+    <div class="col-lg-10">
+        <div id="map"></div>
+    </div>
+</div>
+
+<script>
+    let list = [];
+    let coordinates = [];
+
+    function generate() {
+        var multiRoute = new ymaps.multiRouter.MultiRoute({
+            referencePoints: coordinates,
+            params: {
+                routingMode: 'masstransit'
+            }
+        }, {
+            routeActiveStrokeColor: "#FF0000",
+            routeStrokeWidth: 3,
+            boundsAutoApply: true
+        });
+        returnMyMap().geoObjects.add(multiRoute);
+    }
+
+    function add() {
+        list.push(returnSearchControl().getRequestString());
+        coordinates.push(returnSearchControl().getResultsArray()[0].geometry.getCoordinates());
+
+        var html = "";
+        for (var i = 0; i < list.length; i++) {
+            html += list[i] + "</br>";
+        }
+        document.getElementById("list").innerHTML = html;
+        returnSearchControl().clear()
+    }
+</script>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</body>
+</html>
