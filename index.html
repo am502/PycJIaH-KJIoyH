@@ -19,6 +19,7 @@
         <div class="col" id="places"></div>
         <button type="button" class="btn btn-dark btn-block mt-2" onclick="add()">Добавить маршрут</button>
         <button type="button" class="btn btn-danger btn-block mt-2" onclick="generate()">Построить маршрут</button>
+        <button type="button" class="btn btn-success btn-block mt-2" onclick="rebuild()">Перестроить маршрут</button>
     </div>
     <div class="col-lg-10">
         <div id="map"></div>
@@ -27,6 +28,7 @@
 
 <script>
     let places = [];
+    let routes = [];
 
     function generate() {
         var multiRoute = new ymaps.multiRouter.MultiRoute({
@@ -44,8 +46,14 @@
         multiRoute.model.events.add('requestsuccess', function() {
             var activeRoute = multiRoute.getActiveRoute();
             var activeRoutePaths = activeRoute.getPaths();
+            var index = 0;
             activeRoutePaths.each(function(path) {
-                console.log(path.properties.get("distance").text);
+                routes.push({
+                    "first": index,
+                    "second": index + 1,
+                    "distance": path.properties.get("distance").value
+                });
+                index++;
             });
         });
     }
@@ -63,6 +71,10 @@
         }
         document.getElementById("places").innerHTML = html;
         returnSearchControl().clear()
+    }
+
+    function rebuild() {
+        console.log(routes);
     }
 </script>
 
