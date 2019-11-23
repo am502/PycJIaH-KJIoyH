@@ -16,7 +16,7 @@
 <body>
 <div class="row m-2">
     <div class="col-lg-2">
-        <div class="col" id="list"></div>
+        <div class="col" id="places"></div>
         <button type="button" class="btn btn-dark btn-block mt-2" onclick="add()">Добавить маршрут</button>
         <button type="button" class="btn btn-danger btn-block mt-2" onclick="generate()">Построить маршрут</button>
     </div>
@@ -26,14 +26,13 @@
 </div>
 
 <script>
-    let list = [];
-    let coordinates = [];
+    let places = [];
 
     function generate() {
         var multiRoute = new ymaps.multiRouter.MultiRoute({
-            referencePoints: coordinates,
+            referencePoints: places.map(({coordinates}) => coordinates),
             params: {
-                routingMode: 'masstransit'
+                routingMode: 'pedestrian'
             }
         }, {
             routeActiveStrokeColor: "#FF0000",
@@ -41,17 +40,28 @@
             boundsAutoApply: true
         });
         returnMyMap().geoObjects.add(multiRoute);
+
+        multiRoute.model.events.add('requestsuccess', function() {
+            var activeRoute = multiRoute.getActiveRoute();
+            var activeRoutePaths = activeRoute.getPaths();
+            activeRoutePaths.each(function(path) {
+                console.log(path.properties.get("distance").text);
+            });
+        });
     }
 
     function add() {
-        list.push(returnSearchControl().getRequestString());
-        coordinates.push(returnSearchControl().getResultsArray()[0].geometry.getCoordinates());
+        places.push({
+            "id": places.length,
+            "coordinates": returnSearchControl().getResultsArray()[0].geometry.getCoordinates(),
+            "name": returnSearchControl().getRequestString()
+        });
 
         var html = "";
-        for (var i = 0; i < list.length; i++) {
-            html += list[i] + "</br>";
+        for (var i = 0; i < places.length; i++) {
+            html += places[i].name + "</br>";
         }
-        document.getElementById("list").innerHTML = html;
+        document.getElementById("places").innerHTML = html;
         returnSearchControl().clear()
     }
 </script>
