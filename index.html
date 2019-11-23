@@ -46,22 +46,22 @@
         var visited = [];
         points.push(places[0].coordinates);
         visited.push(0);
-        var curPointIndex = 0;
+        let curPointIndex = 0;
         while (points.length !== places.length) {
             var min = 999999;
+            var newIndex = 0;
             for (var i = 0; i < routes.length; i++) {
-                if (curPointIndex === routes[i].first && routes[i].distance < min && !visited.includes(routes[i].second)) {
-                    curPointIndex = routes[i].second;
+                if (curPointIndex == routes[i].first && routes[i].distance < min && !visited.includes(routes[i].second)) {
+                    newIndex = routes[i].second;
                     min = routes[i].distance;
                 }
-                if (curPointIndex === routes[i].second && routes[i].distance < min && !visited.includes(routes[i].first)) {
-                    curPointIndex = routes[i].first;
+                if (curPointIndex == routes[i].second && routes[i].distance < min && !visited.includes(routes[i].first)) {
+                    newIndex = routes[i].first;
                     min = routes[i].distance;
                 }
             }
-
-            visited.push(curPointIndex);
-            points.push(places[curPointIndex].coordinates);
+            visited.push(newIndex);
+            points.push(places[newIndex].coordinates);
         }
 
         console.log(points);
